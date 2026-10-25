@@ -5,11 +5,7 @@ mod.modName = L["Server Positioning"]
 local defaults = {
 	profile = {
 		windowdata = {
-			['*'] = {
-				-- Blizzard defaults
-				width = 430,
-				height = 120,
-			}
+			['*'] = {}
 		}
 	}
 }

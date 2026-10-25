@@ -64,7 +64,7 @@ function mod:GetOptions()
 			order=103,
 			name = L["Test"],
 			type = "execute",
-			func = function() BNToastFrame_AddToast(BN_TOAST_TYPE_NEW_INVITE) end,
+			func = function() BNToastFrame_AddToast(BN_TOAST_TYPE_NEW_INVITE or 5) end,
 		}
 	}
 	return options
@@ -111,7 +111,7 @@ function mod:OnEnable()
 			self:RawHook(cf, "AddMessage", true)
 		end
 	end
-	self:Hook("BNToastFrame_Close",true)
+	self:SecureHook("BNToastFrame_Close")
 	self:UpdateToastOffsets()
 end
 

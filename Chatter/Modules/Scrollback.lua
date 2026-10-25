@@ -8,6 +8,7 @@ local defaults = {
 }
 
 local options = {}
+local original = {}
 
 local cache = setmetatable({}, {__mode='k'})
 
@@ -25,7 +26,8 @@ local function reclaim(t)
 end
 
 local function setlines(frame, lines)
-	if frame:GetMaxLines() ~= lines then 
+	if frame ~= COMBATLOG and lines and frame:GetMaxLines() ~= lines then
+		original[frame] = original[frame] or frame:GetMaxLines()
 		local history = acquire()
 		for regions = frame:GetNumRegions(),1,-1 do
 			local region = select(regions, frame:GetRegions())
@@ -60,12 +62,15 @@ function mod:OnInitialize()
 			min = 250,
 			max = 2500,
 			step = 10,
-			get = function() return self.db.profile[s] or 250 end,
+			get = function() return self.db.profile[s] or frame:GetMaxLines() end,
 			set = function(info, value)
 				self.db.profile[s] = value
 				setlines(frame, value)
 			end
 		}
+		if frame == ChatFrame2 then
+			options[s] = nil
+		end
 	end
 end
 
@@ -77,7 +82,8 @@ end
 
 function mod:OnDisable()
 	for i = 1, NUM_CHAT_WINDOWS do
-		setlines(_G["ChatFrame"..i], 250)
+		local frame = _G["ChatFrame"..i]
+		setlines(frame, original[frame])
 	end
 end
 

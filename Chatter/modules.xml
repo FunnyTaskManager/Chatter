@@ -10,7 +10,6 @@
 	<!-- <Script file="Modules\ChatLink.lua" /> //-->
 	<Script file="Modules\EditBox.lua" />
 	<Script file="Modules\ChatFont.lua" />
-	<Script file="Modules\CopyChat.lua" />
 	<Script file="Modules\Timestamps.lua" />
 	<Script file="Modules\ClickInvite.lua" />
 	<Script file="Modules\TellTarget.lua" />

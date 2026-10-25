@@ -207,7 +207,9 @@ function mod:Decorate(cf)
 	frame.id = "FRAME_1"
 	tinsert(frames, frame)
 	self:SetBackdrops()
-	frame:Show()
+	if self.db.profile.frames["FRAME_1"].enable then
+		frame:Show()
+	end
 	mod:SetAnchors(frame, self.db.profile.frames["FRAME_1"].combatLogFix)
 end
 
@@ -215,8 +217,10 @@ function mod:OnEnable()
 	self:LibSharedMedia_Registered()
 	self:SetBackdrops()
 	for i = 1, #frames do
-		frames[i]:Show()
-		mod:SetAnchors(frames[i], self.db.profile.frames["FRAME_" .. i].combatLogFix)
+		if self.db.profile.frames[frames[i].id].enable then
+			frames[i]:Show()
+		end
+		mod:SetAnchors(frames[i], self.db.profile.frames[frames[i].id].combatLogFix)
 	end
 	Media.RegisterCallback(mod, "LibSharedMedia_Registered")
 end

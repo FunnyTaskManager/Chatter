@@ -184,6 +184,7 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
+	self:UndecorateTabs()
 	for i = 1, NUM_CHAT_WINDOWS do
 		local chat = _G["ChatFrame"..i]
 		local tab = _G["ChatFrame"..i.."Tab"]
@@ -192,9 +193,18 @@ function mod:OnDisable()
 		_G["ChatFrame"..i.."TabMiddle"]:Show()
 		_G["ChatFrame"..i.."TabRight"]:Show()
 		tab:EnableMouseWheel(false)
-		tab:Hide()
-		tab.noMousealpha=0.2
-		tab:SetAlpha(0.2)
+		tab:SetScript("OnShow", nil)
+		if chat.isDocked or chat:IsVisible() then
+			tab:Show()
+		end
+		tab.leftSelectedTexture:SetAlpha(1)
+		tab.rightSelectedTexture:SetAlpha(1)
+		tab.middleSelectedTexture:SetAlpha(1)
+		tab.leftHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightLeft]])
+		tab.rightHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightRight]])
+		tab.middleHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightMid]])
+		tab.middleHighlightTexture:SetTexCoord(0, 1, 0, 1)
+		FCFTab_UpdateAlpha(chat)
 	end
 	for index,name in ipairs(self.TempChatFrames) do
 		local chat = _G[name]
@@ -204,11 +214,19 @@ function mod:OnDisable()
 		_G[name.."TabMiddle"]:Show()
 		_G[name.."TabRight"]:Show()
 		tab:EnableMouseWheel(false)
-		tab:Hide()
-		tab.noMousealpha=0.2
-		tab:SetAlpha(0.2)
+		tab:SetScript("OnShow", nil)
+		if chat.isDocked or chat:IsVisible() then
+			tab:Show()
+		end
+		tab.leftSelectedTexture:SetAlpha(1)
+		tab.rightSelectedTexture:SetAlpha(1)
+		tab.middleSelectedTexture:SetAlpha(1)
+		tab.leftHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightLeft]])
+		tab.rightHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightRight]])
+		tab.middleHighlightTexture:SetTexture([[Interface\ChatFrame\ChatFrameTab-HighlightMid]])
+		tab.middleHighlightTexture:SetTexCoord(0, 1, 0, 1)
+		FCFTab_UpdateAlpha(chat)
 	end
-	self:UndecorateTabs()
 end
 
 function mod:FCF_Close(f)

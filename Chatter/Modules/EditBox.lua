@@ -148,12 +148,12 @@ local options = {
 		set = function(info, v)
 			mod.db.profile.colorByChannel = v
 			if v then
-				mod:RawHook("ChatEdit_UpdateHeader", "SetBorderByChannel", true)
+				mod:SecureHook("ChatEdit_UpdateHeader", "SetBorderByChannel")
 			else
 				if mod:IsHooked("ChatEdit_UpdateHeader") then
 					mod:Unhook("ChatEdit_UpdateHeader")
 					local c = mod.db.profile.borderColor
-					for _, frame in ipairs(self.frames) do
+					for _, frame in ipairs(mod.frames) do
 						frame:SetBackdropBorderColor(c.r, c.g, c.b, c.a)
 					end
 				end
@@ -284,8 +284,7 @@ function mod:OnInitialize()
 	end
 end
 
-function mod:Decorate(chatframe)
-	local parent = _G[chatframe:GetName().."EditBox"]
+local function makeWidgets(parent)
 	local frame = CreateFrame("Frame", nil, parent)
 	frame:SetFrameStrata("DIALOG")
 	frame:SetFrameLevel(parent:GetFrameLevel() - 1)
@@ -300,7 +299,13 @@ function mod:Decorate(chatframe)
 	parent.rDrag:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT")
 	parent.lDrag.left = true
 	parent.frame = frame
-	tinsert(self.frames, frame)
+	tinsert(mod.frames, frame)
+	return frame
+end
+
+function mod:Decorate(chatframe)
+	local parent = _G[chatframe:GetName().."EditBox"]
+	local frame = parent.frame or makeWidgets(parent)
 	local name = chatframe:GetName()
 	local f = _G[name.."EditBox"]
 	_G[name.."EditBoxLeft"]:Hide()
@@ -316,6 +321,13 @@ function mod:Decorate(chatframe)
 	self:SetAttach(nil, self.db.profile.editX, self.db.profile.editY, self.db.profile.editW)
 	self:SetBackdrop()
 	self:UpdateHeight()
+end
+
+function mod:AlwaysDecorate(chatframe)
+	local parent = _G[chatframe:GetName().."EditBox"]
+	if not parent.frame then
+		makeWidgets(parent):Hide()
+	end
 end
 
 function mod:OnEnable()
@@ -344,7 +356,7 @@ function mod:OnEnable()
 		_G[name.."EditBoxFocusRight"]:SetTexture(nil)
 		_G[name.."EditBoxFocusMid"]:SetTexture(nil)
 		f:Hide()
-		self.frames[NUM_CHAT_WINDOWS+index]:Show()
+		f.frame:Show()
 		local font, s, m = f:GetFont()
 		f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
 		self:SetAttach(nil, self.db.profile.editX, self.db.profile.editY, self.db.profile.editW)
@@ -357,8 +369,8 @@ function mod:OnEnable()
 	self:SecureHook("ChatEdit_SetLastActiveWindow")
 	self:SetBackdrop()
 	self:UpdateHeight()
-	if self.db.profile.colorByChannel then
-		self:RawHook("ChatEdit_UpdateHeader", "SetBorderByChannel", true)
+	if self.db.profile.colorByChannel and not self:IsHooked("ChatEdit_UpdateHeader") then
+		self:SecureHook("ChatEdit_UpdateHeader", "SetBorderByChannel")
 	end
 	self:SecureHook("FCF_Tab_OnClick")
 end
@@ -436,9 +448,8 @@ function mod:SetBackdrop()
 end
 
 function mod:SetBorderByChannel(...)
-	self.hooks.ChatEdit_UpdateHeader(...)
 	for index, frame in ipairs(self.frames) do
-		local f = _G["ChatFrame"..index.."EditBox"]
+		local f = frame:GetParent()
 		local attr = f:GetAttribute("chatType")
 		if attr == "CHANNEL" then
 			local chan = f:GetAttribute("channelTarget")

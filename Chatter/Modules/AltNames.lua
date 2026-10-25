@@ -321,24 +321,26 @@ function mod:ScanGuildNotes()
 	-- #1: find all names
 	for i=1,GetNumGuildMembers(true) do
 		local name = GetGuildRosterInfo(i)
-		names[strlower(name or "?")] = name
+		if name then
+			names[strlower(name)] = name
+		end
 	end
 	
 	-- #2: scan all words in all guild notes, see if a name is mentioned
 	for i=1,GetNumGuildMembers(true) do
 		local name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i);
 		local success
-		for word in gmatch(strlower(note), "[%a\128-\255]+") do
-			if names[word] then
+		for word in gmatch(strlower(note or ""), "[%a\128-\255]+") do
+			if name and names[word] then
 				GUILDNOTES[name] = names[word]
 				success = true
 				--DBG n=n+1
 				break
 			end
 		end
-		if not success and mod.db.profile.altNotesFallback and note~="" then
+		if not success and name and mod.db.profile.altNotesFallback and note and note~="" then
 			-- #3:  no joy? then if this is an 'alt' rank, use the entire note
-			rank=strlower(rank)
+			rank=strlower(rank or "")
 			if strfind(rank, "alt") or
 				strfind(rank, L["alt2"]) or
 				strfind(rank, L["alt3"]) then

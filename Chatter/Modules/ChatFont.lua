@@ -134,7 +134,18 @@ end
 
 function mod:OnDisable()
 	Media.UnregisterCallback(mod, "LibSharedMedia_Registered")
-	self:SetFont(nil, "Arial Narrow", 12, "")
+	local file, size, flags = ChatFontNormal:GetFont()
+	for i = 1, NUM_CHAT_WINDOWS do
+		local saved = select(2, GetChatWindowInfo(i))
+		_G["ChatFrame" .. i]:SetFont(file, (saved or 0) > 0 and saved or size, flags)
+	end
+	local saved = select(2, GetChatWindowInfo(1))
+	for index,name in ipairs(self.TempChatFrames) do
+		local cf = _G[name]
+		if cf then
+			cf:SetFont(file, (saved or 0) > 0 and saved or size, flags)
+		end
+	end
 end
 
 function mod:SetFont(cf, font, size, outline)

@@ -60,7 +60,7 @@ local proto = {
 	Decorate = function(self,chatframe) end,
 	Popout = function(self,chatframe,srcChatFrame) end,
 	TempChatFrames = {},
-	AddTempChat = function(self,name) table.insert(self.TempChatFrames,name) end,
+	AddTempChat = function(self,name) if not tContains(self.TempChatFrames,name) then table.insert(self.TempChatFrames,name) end end,
 	AlwaysDecorate = function(self,chatframe) end,
 }
 
@@ -151,8 +151,8 @@ function Chatter:OnInitialize()
 		func = Chatter.OpenConfig,
 		notCheckable = 1
 	})
-	self:RawHook("FCF_Tab_OnClick", true)
-	self:RawHook("FCF_OpenTemporaryWindow",true)
+	self:SecureHook("FCF_Tab_OnClick")
+	self:SecureHook("FCF_OpenTemporaryWindow")
 end
 
 do
@@ -167,7 +167,6 @@ do
 	end
 	
 	function Chatter:FCF_Tab_OnClick(...)
-		self.hooks.FCF_Tab_OnClick(...)
 		for module, v in pairs(menuHooks) do
 			local menu
 			if type(v) == "table" then
@@ -181,7 +180,14 @@ do
 end
 
 function Chatter:FCF_OpenTemporaryWindow(chatType, chatTarget, sourceChatFrame, selectWindow)
-	local frame = self.hooks.FCF_OpenTemporaryWindow(chatType, chatTarget, sourceChatFrame, selectWindow)
+	local frame
+	for _, name in ipairs(CHAT_FRAMES) do
+		local cf = _G[name]
+		if cf.isTemporary and cf.inUse and cf.chatType == chatType and cf.chatTarget == chatTarget then
+			frame = cf
+			break
+		end
+	end
 	if frame then
 		for k, v in self:IterateModules() do
 			if not frame.isDecorated then
@@ -198,7 +204,6 @@ function Chatter:FCF_OpenTemporaryWindow(chatType, chatTarget, sourceChatFrame, 
 		frame.isDecorated = true
 	end
 	FCFDock_ForceReanchoring(GENERAL_CHAT_DOCK)
-	return frame
 end
 
 function Chatter:OpenConfig(input)
@@ -216,8 +221,8 @@ end
 
 do
 	local timer, t = nil, 0
-	local function update()
-		t = t + arg1
+	local function update(self, elapsed)
+		t = t + elapsed
 		if t > 0.5 then
 			timer:SetScript("OnUpdate", nil)
 			Chatter:UpdateConfig()

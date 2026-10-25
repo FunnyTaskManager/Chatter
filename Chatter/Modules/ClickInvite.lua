@@ -38,8 +38,8 @@ local options = {
 		name = L["Alt-click name to invite"],
 		width = "double",
 		desc = L["Lets you alt-click player names to invite them to your party."],
-		get = function() return mod.db.profile.altClickToinvite end,
-		set = function(i, v) mod.db.profile.altClickToinvite = v end
+		get = function() return mod.db.profile.altClickToInvite end,
+		set = function(i, v) mod.db.profile.altClickToInvite = v end
 	}
 }
 
@@ -110,7 +110,7 @@ function mod:AddMessage(frame, text, ...)
 	return self.hooks[frame].AddMessage(frame, text, ...)
 end
 
-function mod:SetItemRef(link, text, button)
+function mod:SetItemRef(link, text, button, ...)
 	local linkType = sub(link, 1, 6)
 	-- Chatter:Print(IsAltKeyDown(), linkType, self.db.profile.altClickToInvite)
 	if IsAltKeyDown() and linkType == "player" and self.db.profile.altClickToInvite then
@@ -122,7 +122,7 @@ function mod:SetItemRef(link, text, button)
 		InviteUnit(name)
 		return nil
 	end
-	return self.hooks.SetItemRef(link, text, button)
+	return self.hooks.SetItemRef(link, text, button, ...)
 end
 
 function mod:Info()
