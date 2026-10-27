@@ -28,13 +28,17 @@ function mod:FCF_RestorePositionAndDimensions(chatFrame)
 	end
 end
 
+local insets = {}
+
 -- Fix the jump in
 for i = 1, NUM_CHAT_WINDOWS do
 	local f = _G["ChatFrame" .. i]
+	insets[f] = {f:GetClampRectInsets()}
 	f:SetClampRectInsets(0, 0, 0, 0)
 end
 
 function mod:ApplyFrameChanges(f)
+	insets[f] = insets[f] or {f:GetClampRectInsets()}
 	f:SetClampRectInsets(0, 0, 0, 0)
 	local ff = _G[f:GetName() .. "ButtonFrame"]
 	ff:Hide()
@@ -62,7 +66,7 @@ function mod:OnEnable()
 end
 
 function mod:UnDecorate(frame)
-	frame:SetClampRectInsets(-35, 35, 26, -50)
+	frame:SetClampRectInsets(unpack(insets[frame] or {-35, 35, 26, -50}))
 	-- Reset the postion so if the buttons were offscreen frame goes to where it should be
 	if frame:IsMovable() then
 		FCF_RestorePositionAndDimensions(frame)

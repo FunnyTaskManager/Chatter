@@ -25,28 +25,44 @@ local function reclaim(t)
 	cache[t] = true
 end
 
+local chatTypeNames
+
 local function setlines(frame, lines)
 	if frame ~= COMBATLOG and lines and frame:GetMaxLines() ~= lines then
 		original[frame] = original[frame] or frame:GetMaxLines()
-		local history = acquire()
+		if not chatTypeNames then
+			chatTypeNames = {}
+			for chatType in pairs(ChatTypeInfo) do
+				chatTypeNames[GetChatTypeIndex(chatType)] = chatType
+			end
+		end
+		local colors = acquire()
 		for regions = frame:GetNumRegions(),1,-1 do
 			local region = select(regions, frame:GetRegions())
-			if region:GetObjectType() == "FontString" then
-				table.insert(history, {region:GetText(), region:GetTextColor() })
+			if region:GetObjectType() == "FontString" and region:GetText() then
+				colors[region:GetText()] = {region:GetTextColor()}
 			end
+		end
+		local history = acquire()
+		for i = 1, frame:GetNumMessages() do
+			table.insert(history, {frame:GetMessageInfo(i)})
 		end
 
 		frame:SetMaxLines(lines or 250)
 
 		Chatter.loading = true
 
-		for k,v in pairs(history) do
-			frame:AddMessage(unpack(v))
+		for _, v in ipairs(history) do
+			local text, accessID, lineID, extraData = unpack(v)
+			local info = ChatTypeInfo[chatTypeNames[lineID]]
+			local color = colors[text] or info and {info.r, info.g, info.b} or {1, 1, 1}
+			frame:AddMessage(text, color[1], color[2], color[3], lineID, false, accessID, extraData)
 		end
 
 		Chatter.loading = false
 
 		reclaim(history)
+		reclaim(colors)
 	end
 end
 

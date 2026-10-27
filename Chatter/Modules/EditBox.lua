@@ -503,7 +503,7 @@ do
 		for i = 1, NUM_CHAT_WINDOWS do 
 			local frame = _G["ChatFrame" .. i .. "EditBox"]
 			local val = val or self.db.profile.attach
-			if not x and val == "FREE" then
+			if not x and (val == "FREE" or val == "LOCK") then
 				if self.db.profile.editX and self.db.profile.editY then
 					x, y, w = self.db.profile.editX, self.db.profile.editY, self.db.profile.editW
 				else
@@ -563,7 +563,7 @@ do
 		for index,name in ipairs(self.TempChatFrames) do
 			local frame = _G[name .. "EditBox"]
 			local val = val or self.db.profile.attach
-			if not x and val == "FREE" then
+			if not x and (val == "FREE" or val == "LOCK") then
 				x, y, w = frame:GetLeft(), frame:GetTop(), max(frame:GetWidth(), (frame:GetRight() or 0) - (frame:GetLeft() or 0))
 			end
 			if not w or w < 10 then w = 100 end

@@ -9,7 +9,7 @@ local fmt = _G.string.format
 local sub = _G.string.sub
 
 local tlds
-local style = "|cffffffff|Hurl:%s|h[%s]|h|r"
+local style = "|cffffffff|Hplayer::url:%s|h[%s]|h|r"
 local function Link(link, ...)
 	if link == nil then
 		return ""
@@ -106,7 +106,15 @@ do
 		for _,event in ipairs(events) do
 			ChatFrame_AddMessageEventFilter(event, self.filterFunc)
 		end
-		self:RawHook("SetItemRef", true)
+		for i = 1, NUM_CHAT_WINDOWS do
+			self:Decorate(_G["ChatFrame" .. i])
+		end
+		for index,name in ipairs(self.TempChatFrames) do
+			local cf = _G[name]
+			if cf then
+				self:Decorate(cf)
+			end
+		end
 	end
 	function mod:OnDisable()
 		for _,event in ipairs(events) do
@@ -239,15 +247,17 @@ do
 end
 
 
-function mod:SetItemRef(link, text, button, ...)
-	if sub(link, 1, 3) == "url" then
-		currentLink = sub(link, 5)
+function mod:Decorate(frame)
+	self:SecureHookScript(frame, "OnHyperlinkClick")
+end
+
+function mod:OnHyperlinkClick(frame, link)
+	if sub(link, 1, 12) == "player::url:" then
+		currentLink = sub(link, 13)
 		currentLink = mangleLinkForVoiceChat(currentLink)
 
 		StaticPopup_Show("ChatterUrlCopyDialog")
-		return
 	end
-	return self.hooks.SetItemRef(link, text, button, ...)
 end
 
 function mod:Info()

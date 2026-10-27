@@ -58,6 +58,7 @@ end
 
 function mod:Decorate(frame)
 	self:RawHook(frame, "AddMessage", true)
+	self:SecureHookScript(frame, "OnHyperlinkClick")
 end
 
 function mod:OnEnable()
@@ -69,19 +70,18 @@ function mod:OnEnable()
 	for i = 1, NUM_CHAT_WINDOWS do
 		local cf = _G["ChatFrame" .. i]
 		if cf ~= COMBATLOG then
-			self:RawHook(cf, "AddMessage", true)
+			self:Decorate(cf)
 		end
 	end
 	for index,name in ipairs(self.TempChatFrames) do
 		local cf = _G[name]
 		if cf then
-			self:RawHook(cf, "AddMessage", true)
+			self:Decorate(cf)
 		end
 	end
-	self:RawHook(nil, "SetItemRef", true)
 end
 
-local style = "|cffffffff|Hinvite:%s|h[%s]|h|r"
+local style = "|cffffffff|Hplayer::invite:%s|h[%s]|h|r"
 local valid_events = {
 	CHAT_MSG_SAY = true,
 	CHAT_MSG_CHANNEL = true,
@@ -110,19 +110,15 @@ function mod:AddMessage(frame, text, ...)
 	return self.hooks[frame].AddMessage(frame, text, ...)
 end
 
-function mod:SetItemRef(link, text, button, ...)
-	local linkType = sub(link, 1, 6)
-	-- Chatter:Print(IsAltKeyDown(), linkType, self.db.profile.altClickToInvite)
-	if IsAltKeyDown() and linkType == "player" and self.db.profile.altClickToInvite then
-		local name = match(link, "player:([^:]+)")
-		InviteUnit(name)
-		return nil
-	elseif linkType == "invite" then
-		local name = sub(link, 8)
-		InviteUnit(name)
-		return nil
+function mod:OnHyperlinkClick(frame, link)
+	if sub(link, 1, 15) == "player::invite:" then
+		InviteUnit(sub(link, 16))
+	elseif IsAltKeyDown() and self.db.profile.altClickToInvite then
+		local name = match(link, "^player:([^:]+)")
+		if name then
+			InviteUnit(name)
+		end
 	end
-	return self.hooks.SetItemRef(link, text, button, ...)
 end
 
 function mod:Info()
