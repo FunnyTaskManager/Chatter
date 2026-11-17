@@ -38,7 +38,6 @@ function mod:SetChatWindowLocked(index, locked, ...)
 			f[k]:EnableMouse(not locked)
 		end
 	end
-	return self.hooks.SetChatWindowLocked(index, locked, ...)
 end
 
 function mod:MakeResizers(frame)
@@ -84,6 +83,7 @@ function mod:MakeResizers(frame)
 end
 
 function mod:HideResizers(f)
+	if not f.resizeTopLeft then return end
 	f.resizeTopLeft:Hide()
 	f.resizeTopRight:Hide()
 	f.resizeBottomLeft:Hide()
@@ -96,6 +96,13 @@ function mod:HideResizers(f)
 	f.resizeBottom:Hide()
 	f.resizeLeft:Hide()
 	f.resizeLeft:Hide()
+end
+
+function mod:Decorate(frame)
+	self:MakeResizers(frame)
+	local b = _G[("ChatFrame%dResizeButton"):format(frame:GetID())]
+	b:SetScript("OnShow", b.Hide)
+	b:Hide()
 end
 
 function mod:OnEnable()
@@ -113,7 +120,7 @@ function mod:OnEnable()
 		b:SetScript("OnShow", b.Hide)
 		b:Hide()
 	end
-	self:RawHook("SetChatWindowLocked",true)
+	self:SecureHook("SetChatWindowLocked")
 end
 
 function mod:OnDisable()
@@ -121,15 +128,15 @@ function mod:OnDisable()
 		local f = _G["ChatFrame"..i]
 		self:HideResizers(f)
 		local b = _G[("ChatFrame%dResizeButton"):format(f:GetID())]
-		b:SetScript("OnShow", b.Show)
-		b:Show()
+		b:SetScript("OnShow", nil)
+		b:SetShown(not (f.isLocked or f.isUninteractable))
 	end
 	for index,name in ipairs(self.TempChatFrames) do
 		local f = _G[name]
 		self:HideResizers(f)
 		local b = _G[("ChatFrame%dResizeButton"):format(f:GetID())]
-		b:SetScript("OnShow", b.Show)
-		b:Show()
+		b:SetScript("OnShow", nil)
+		b:SetShown(not (f.isLocked or f.isUninteractable))
 	end
 	self:UnhookAll()
 end

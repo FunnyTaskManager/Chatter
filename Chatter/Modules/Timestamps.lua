@@ -58,7 +58,7 @@ local options = {
 		set = function(info, v)
 			if #v == 0 then v = nil end
 			mod.db.profile.customFormat = v
-			SELECTED_FORMAT = v
+			SELECTED_FORMAT = v or ("[" .. mod.db.profile.format .. "]")
 		end,
 		order = 101		
 	},

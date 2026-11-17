@@ -95,7 +95,7 @@ local function UnitClass(unit)	-- Hook UnitClass for calls below so that we can 
 	local loc,sys = origUnitClass(unit)
 	if sys and mod.db.global.classes[sys] then
 		mod.db.global.classes[sys] = loc
-		localizedToSystemClass = sys
+		localizedToSystemClass[loc] = sys
 	end
 	return loc,sys
 end

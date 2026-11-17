@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Title: Chatter
-## Notes: |@Version: 1@|Lightweight Chat Improvements
+## Notes: |@Version: 2@|Lightweight Chat Improvements
 ## Author: Antiarc
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibSink-2.0
 ## X-Category: Chat/Communication

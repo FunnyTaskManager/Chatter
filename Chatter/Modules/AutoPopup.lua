@@ -29,7 +29,7 @@ function mod:AlwaysDecorate(frame)
 				chatFrame = cf
 			end
 		end
-		if chatFrame then
+		if chatFrame and frame:GetNumMessages(accessID) == 0 then
 			Chatter.loading = true
 			for i = 1, chatFrame:GetNumMessages(accessID) do
 				local text, accessID, lineID, extraData = chatFrame:GetMessageInfo(i, accessID);

@@ -9,14 +9,13 @@ local editbox = DEFAULT_CHAT_FRAME.editBox
 function mod:OnInitialize()
 	self.db = Chatter.db:RegisterNamespace("Editbox History", defaults)
 	history = self.db.realm.history
-
-	-- Hook adding lines
-	self:SecureHook( editbox, "AddHistoryLine" )
 end
 
 function mod:OnEnable()
+	-- Hook adding lines
+	self:SecureHook( editbox, "AddHistoryLine" )
 	-- Keeping state if we're enabled or not
-	enable = false
+	enabled = false
 	for _, line in ipairs( history ) do
 		editbox:AddHistoryLine( line )
 	end

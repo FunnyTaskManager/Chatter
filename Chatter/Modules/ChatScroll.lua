@@ -49,12 +49,10 @@ local options = {
 
 function mod:OnInitialize()
 	self.db = Chatter.db:RegisterNamespace(self:GetName(), defaults)
-	self:RegisterEvent("CVAR_UPDATE", "ChangedVars")
-	self:RawHook("InterfaceOptionsSocialPanelChatMouseScroll_SetScrolling",true)
 end
 
-function mod:InterfaceOptionsSocialPanelChatMouseScroll_SetScrolling()
-	-- We want to intercept this and handle it ourselves
+function mod:InterfaceOptionsSocialPanelChatMouseScroll_SetScrolling(value)
+	self:ChangedVars(nil, "CHAT_MOUSE_WHEEL_SCROLL", value)
 end
 
 function mod:ChangedVars(event,cvar,value)
@@ -91,6 +89,8 @@ function mod:ChangedVars(event,cvar,value)
 end
 
 function mod:OnEnable()
+	self:RegisterEvent("CVAR_UPDATE", "ChangedVars")
+	self:SecureHook("InterfaceOptionsSocialPanelChatMouseScroll_SetScrolling")
 	if GetCVar("chatMouseScroll") == "1" then
 		return
 	end
@@ -131,7 +131,7 @@ function mod:OnDisable()
 		else
 			cf:SetScript("OnMouseWheel", nil)
 			if cf:IsMouseWheelEnabled() then
-				cf:EnableMouseWheel(true)
+				cf:EnableMouseWheel(false)
 			end
 		end
 	end
@@ -145,7 +145,7 @@ function mod:OnDisable()
 		else
 			cf:SetScript("OnMouseWheel", nil)
 			if cf:IsMouseWheelEnabled() then
-				cf:EnableMouseWheel(true)
+				cf:EnableMouseWheel(false)
 			end
 		end
 	end
